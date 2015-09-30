@@ -25,7 +25,7 @@ object Joiner {
     val rddClk = sparkContext.textFile(args(0)).map(_.split("\t")).map(c => (c(1), Click(format.parse(c(0)), c(1), c(2).trim.toInt)))
     val rddReg = sparkContext.textFile(args(1)).map(_.split("\t")).map(r => (r(1), Register(format.parse(r(0)), r(1), r(2), r(3).toFloat, r(4).toFloat)))
 
-    println("JOIN: " + rddReg.join(rddClk).collect())
+    println("RESULT: " + rddReg.join(rddClk).collect())
 
     println("Joiner: Hello, User. I've ended execution.")
 
@@ -35,10 +35,6 @@ object Joiner {
 
   private case class Register(d: java.util.Date, uuid: String, cust_id: String, lat: Float, lng: Float)
 
-  def debugCountdown(seconds: Int) = {
-    println("-------------Attach debugger now, " + seconds + " seconds left!--------------") //$ export SPARK_JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
-      Thread.sleep(seconds * 1000)
-    println("-------------Debugger should be connected by now for successful debugging!--------------")
-  }
+
 
 }
