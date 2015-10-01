@@ -1,5 +1,14 @@
 package ua.softserve.spark
 
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.hadoop.io.compress.CompressionCodec
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{Row, DataFrame}
+import org.apache.spark.storage.StorageLevel
+
+import scala.reflect.ClassTag
+
 /**
  * Created by dbort on 30.09.2015.
  */
@@ -10,5 +19,7 @@ package object aggregator {
     Thread.sleep(seconds * 1000)
     println("-------------Debugger should be connected by now for successful debugging!--------------")
   }
+
+
 
 }
