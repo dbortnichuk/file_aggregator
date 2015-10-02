@@ -72,7 +72,7 @@ object AggDriver {
       hadoopConf.set("mapred.input.dir", inDirPath)
       hadoopConf.setLong("mapred.max.split.size", size * 1024 * 1024)
       hadoopConf.setBoolean("fs.hdfs.impl.disable.cache", true)
-      hadoopConf.setLong("dfs.blocksize", 128 * 1024 * 1024)
+      hadoopConf.setLong("dfs.blocksize", 128 * 1024 * 1024) //check by, example: hadoop fs -stat %o /user/examples1/files-out/part-00002
 
       val fs = FileSystem.get(URI.create("hdfs://localhost/user/examples1/props/props.txt"), hadoopConf)
       val out = fs.create(new Path("hdfs://localhost/user/examples1/props/props.txt"), true)
