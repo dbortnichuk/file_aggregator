@@ -17,8 +17,19 @@ import scala.reflect.ClassTag
  */
 package object aggregator {
 
-  def debugCountdown(seconds: Int) = {
-    println("-------------Attach debugger now, " + seconds + " seconds left!--------------") //$ export SPARK_JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+  val FileNameConfDefault = "/conf.properties"
+
+  val PropAppName = "appName"
+  val PropMasterURI = "masterURI"
+  val PropInputDir = "inputDir"
+  val PropOutputDir = "outputDir"
+  val PropMaxFileSize = "maxFileSize"
+  val PropHdfsBlockSize = "hdfsBlockSize"
+  val PropOutputFileContentDelim = "outputFileContentDelim"
+  val PropInputDirRecursiveRead = "inputDirRecursiveRead"
+
+  def debugCountdown(seconds: Int) = { //turn on debug - $ export SPARK_JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    println("-------------Attach debugger now, " + seconds + " seconds left!--------------")
     Thread.sleep(seconds * 1000)
     println("-------------Debugger should be connected by now for successful debugging!--------------")
   }

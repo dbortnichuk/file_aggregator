@@ -1,9 +1,11 @@
 package ua.softserve.spark.aggregator
 
-import java.io.{FileOutputStream, OutputStream}
-import java.net.URI
+import java.io.{File, FileOutputStream, OutputStream}
+import java.net.{URL, URI}
+import java.util.Properties
 
 import org.apache.hadoop.mapred.JobConf
+import org.apache.hadoop.mapred.lib.MultipleTextOutputFormat
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
@@ -19,9 +21,11 @@ import org.apache.hadoop.fs._
 import org.apache.hadoop.mapreduce.lib.input._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.conf.Configured
+import scala.io.Source
 import scala.reflect.ClassTag
 import scala.reflect._
 import org.apache.spark.rdd._
+
 
 /**
  * Created by dbort on 01.10.2015.
@@ -33,17 +37,46 @@ object AggDriver {
 
   def main(args: Array[String]) {
 
-    //debugCountdown(8)
+//    val source = if (args.size > 0) Source.fromURL(args(0)) else Source.fromURL(getClass.getResource(FileNameConfDefault))
+//    val properties = new Properties()
+//    properties.load(source.bufferedReader())
+//
+//
+//    //debugCountdown(8)
+//
+//    val sparkContext = new SparkContext("spark://quickstart.cloudera:7077", "File_Aggregator")
+//    val rdd = sparkContext.combineTextFiles(properties.getProperty(PropInputDir))
+//    rdd.saveAsTextFile(properties.getProperty(PropOutputDir))
 
-    val sparkContext = new SparkContext("spark://quickstart.cloudera:7077", "File_Aggregator")
-    val rdd = sparkContext.aggregateTextFiles(args(0))
-    rdd.saveAsTextFile(args(0) + "-out")
+    val parser = new scopt.OptionParser[Config]("scoptA") {
+      head("scoptAA", "3.x")
+      opt[String]('i', "in") required() valueName("<file>") action { (x, c) =>
+        c.copy(in = x) } text("in is a required file property")
+      opt[String]('o', "out") required() valueName("<file>") action { (x, c) =>
+        c.copy(out = x) } text("out is a required file property")
+    }
+
+    parser.parse(args, Config()) match {
+      case Some(config) =>
+        val sparkContext = new SparkContext("spark://quickstart.cloudera:7077", "File_Aggregator")
+        val rdd = sparkContext.combineTextFiles(config.in)
+        rdd.saveAsTextFile(config.out)
+      case None => println("bad arguments")
+    }
+
+
+
+//    rdd
+//      .map{v => (new Text(args(0) + "-out"), new Text(v.toString))}
+//      .saveAsHadoopDataset(new JobConf(sparkContext.hadoopConfiguration))
 
   }
 
+  case class Config(in: String = "", out: String = "")
+
   implicit class Aggregator(val origin: SparkContext) {
 
-    def aggregateTextFiles(inDirPath: String, size: Long = defaultSize, delim: String = defaultDelim): RDD[String] = {
+    def combineTextFiles(inDirPath: String, size: Long = defaultSize, delim: String = defaultDelim): RDD[String] = {
 
       val hadoopConf = origin.hadoopConfiguration
       hadoopConf.set("textinputformat.record.delimiter", delim)
@@ -52,13 +85,9 @@ object AggDriver {
       hadoopConf.setLong("mapred.max.split.size", size * 1024 * 1024)
       hadoopConf.setBoolean("fs.hdfs.impl.disable.cache", true)
       hadoopConf.setLong("dfs.blocksize", 128 * 1024 * 1024) //check by - example: hadoop fs -stat %o /user/examples1/files-out/part-00002
-
       val jobConf = new JobConf(hadoopConf)
-
-      //jobConf.setOutputFormat()
-
-      dumpConfig(jobConf, "hdfs://localhost/user/examples1/props/props.txt")
-
+      //jobConf.setOutputFormat(classOf[KeyBasedMultipleTextOutputFormat])
+      //dumpConfig(jobConf, "hdfs://localhost/user/examples1/props/props.txt")
       origin.newAPIHadoopRDD(jobConf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
       //origin.newAPIHadoopFile(inDirPath, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text], hadoopConf).map(_._2.toString)
 
@@ -75,6 +104,14 @@ object AggDriver {
 
     override def generateKey(split: CombineFileSplit, index: Integer) = split.getOffset(index)
   }
+
+//  class KeyBasedMultipleTextOutputFormat extends MultipleTextOutputFormat[Text, Text] {
+//    override def generateFileNameForKeyValue(key: Text, value: Text, name: String): String = {
+//      key.toString + "/" + name
+//    }
+//
+//    override def generateActualKey(key: Text, value: Text) = null
+//  }
 
 
   private abstract class CombineTextFileRecordReader[K](split: CombineFileSplit, context: TaskAttemptContext, index: Integer)

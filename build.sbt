@@ -6,25 +6,25 @@ name := "file_aggregator"
 
 version := "1.0"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.5"
 
-parallelExecution in Test := false
+libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.0" % "provided"
 
-fork in Test := true
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "1.5.0" % "provided"
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "1.4.1" % "provided"
-
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "1.4.1" % "provided"
-
-libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.3.0-cdh5.1.2" % "provided"
+libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.1" % "provided"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
 
 libraryDependencies += "com.typesafe" % "config" % "1.2.1"
 
+libraryDependencies += "com.github.scopt" % "scopt_2.10" % "3.3.0"
+
 resolvers += "Akka Repository" at "http://repo.akka.io/releases/"
 
 resolvers += "Cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
+
+resolvers += Resolver.sonatypeRepo("public")
 
 pomExtra :=
   <build>
