@@ -3,6 +3,7 @@ package ua.softserve.spark.aggregator
 import java.io.{FileOutputStream, OutputStream}
 import java.net.URI
 
+import org.apache.hadoop.mapred.JobConf
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
@@ -20,6 +21,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.conf.Configured
 import scala.reflect.ClassTag
 import scala.reflect._
+import org.apache.spark.rdd._
 
 /**
  * Created by dbort on 01.10.2015.
@@ -31,19 +33,10 @@ object AggDriver {
 
   def main(args: Array[String]) {
 
-    debugCountdown(8)
+    //debugCountdown(8)
 
     val sparkContext = new SparkContext("spark://quickstart.cloudera:7077", "File_Aggregator")
-    //sparkContext.setLocalProperty("spark.io.compression.snappy.block.size", "32768")
     val rdd = sparkContext.aggregateTextFiles(args(0))
-    //sparkContext.hadoopConfiguration.setLong("dfs.blocksize", 32 * 1024 * 1024)
-
-//    val fs = FileSystem.get(URI.create("hdfs://localhost/user/examples1/props/props1.txt"), sparkContext.hadoopConfiguration)
-//    val out = fs.create(new Path("hdfs://localhost/user/examples1/props/props1.txt"), true)
-//    sparkContext.hadoopConfiguration.writeXml(out)
-//    out.close()
-
-
     rdd.saveAsTextFile(args(0) + "-out")
 
   }
@@ -51,20 +44,6 @@ object AggDriver {
   implicit class Aggregator(val origin: SparkContext) {
 
     def aggregateTextFiles(inDirPath: String, size: Long = defaultSize, delim: String = defaultDelim): RDD[String] = {
-      //      val hadoopConf = new Configuration()
-      //      hadoopConf.set("textinputformat.record.delimiter", delim)
-      //      hadoopConf.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")
-      //      hadoopConf.set("mapred.input.dir", inDirPath)
-      //      hadoopConf.setLong("mapred.max.split.size", size * 1024 * 1024)
-      //      hadoopConf.setBoolean("fs.hdfs.impl.disable.cache", true)
-      ////      hadoopConf.setLong("fs.local.block.size", 32 * 1024 * 1024)
-      //      //hadoopConf.setLong("dfs.blocksize", 32 * 1024 * 1024)
-      ////      hadoopConf.setLong("dfs.block.size", 32 * 1024 * 1024)
-      //
-      //      val fs = FileSystem.get(URI.create("hdfs://localhost/user/examples1/props/props.txt"), hadoopConf)
-      //      val out = fs.create(new Path("hdfs://localhost/user/examples1/props/props.txt"), true)
-      //      hadoopConf.writeXml(out)
-      //      out.close()
 
       val hadoopConf = origin.hadoopConfiguration
       hadoopConf.set("textinputformat.record.delimiter", delim)
@@ -72,15 +51,15 @@ object AggDriver {
       hadoopConf.set("mapred.input.dir", inDirPath)
       hadoopConf.setLong("mapred.max.split.size", size * 1024 * 1024)
       hadoopConf.setBoolean("fs.hdfs.impl.disable.cache", true)
-      hadoopConf.setLong("dfs.blocksize", 128 * 1024 * 1024) //check by, example: hadoop fs -stat %o /user/examples1/files-out/part-00002
+      hadoopConf.setLong("dfs.blocksize", 128 * 1024 * 1024) //check by - example: hadoop fs -stat %o /user/examples1/files-out/part-00002
 
-      val fs = FileSystem.get(URI.create("hdfs://localhost/user/examples1/props/props.txt"), hadoopConf)
-      val out = fs.create(new Path("hdfs://localhost/user/examples1/props/props.txt"), true)
-      hadoopConf.writeXml(out)
-      out.close()
+      val jobConf = new JobConf(hadoopConf)
 
-      origin.newAPIHadoopRDD(hadoopConf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
+      //jobConf.setOutputFormat()
 
+      dumpConfig(jobConf, "hdfs://localhost/user/examples1/props/props.txt")
+
+      origin.newAPIHadoopRDD(jobConf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
       //origin.newAPIHadoopFile(inDirPath, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text], hadoopConf).map(_._2.toString)
 
     }
