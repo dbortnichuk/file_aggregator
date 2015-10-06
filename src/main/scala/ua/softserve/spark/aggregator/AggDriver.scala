@@ -32,9 +32,6 @@ import org.apache.spark.rdd._
  */
 object AggDriver {
 
-  private val defaultSize = 256
-  private val defaultDelim = "\n"
-
   def main(args: Array[String]) {
 
 //    val source = if (args.size > 0) Source.fromURL(args(0)) else Source.fromURL(getClass.getResource(FileNameConfDefault))
@@ -42,28 +39,42 @@ object AggDriver {
 //    properties.load(source.bufferedReader())
 //
 //
-//    //debugCountdown(8)
+      //debugCountdown(6)
 //
 //    val sparkContext = new SparkContext("spark://quickstart.cloudera:7077", "File_Aggregator")
 //    val rdd = sparkContext.combineTextFiles(properties.getProperty(PropInputDir))
 //    rdd.saveAsTextFile(properties.getProperty(PropOutputDir))
 
-    val parser = new scopt.OptionParser[Config]("scoptA") {
-      head("scoptAA", "3.x")
-      opt[String]('i', "in") required() valueName("<file>") action { (x, c) =>
-        c.copy(in = x) } text("in is a required file property")
-      opt[String]('o', "out") required() valueName("<file>") action { (x, c) =>
-        c.copy(out = x) } text("out is a required file property")
+    val parser = new scopt.OptionParser[Config](MsgUsage) {
+      head("File Aggregator", "1.0")
+      opt[String]('i', "in") required() valueName("<inURI>") action { (x, c) =>
+        c.copy(in = x) } text(MsgIn)
+      opt[String]('o', "out") required() valueName("<outURI>") action { (x, c) =>
+        c.copy(out = x) } text(MsgOut)
+      opt[String]('m', "master") required() valueName("<masterURI>") action { (x, c) =>
+        c.copy(master = x) } text(MsgMaster)
+      opt[String]('n', "name") valueName("<appName>") action { (x, c) =>
+        c.copy(name = x) } text(MsgName)
+      opt[Long]('f', "fsize") valueName("<fileSize>") action { (x, c) =>
+        c.copy(maxFileSize = x) } text(MsgMaxFileSize)
+      opt[Long]('b', "bsize") valueName("<blockSize>") action { (x, c) =>
+        c.copy(hdfsBlockSize = x) } text(MsgHdfsBlockSize)
+      opt[String]('d', "delim") valueName("<delimiter>") action { (x, c) =>
+        c.copy(outputFileContentDelim = x) } text(MsgOutputFileContentDelim)
+      opt[Boolean]('r', "recursive") valueName("<recursiveRead>") action { (x, c) =>
+        c.copy(inputDirRecursiveRead = x) } text(MsgInputDirRecursiveRead)
+      help("help") text(MsgHelp)
+      note(MsgNote)
     }
 
     parser.parse(args, Config()) match {
       case Some(config) =>
-        val sparkContext = new SparkContext("spark://quickstart.cloudera:7077", "File_Aggregator")
-        val rdd = sparkContext.combineTextFiles(config.in)
+        val sparkContext = new SparkContext(config.master, config.name)
+        val rdd = sparkContext.combineTextFiles(config.in,
+          config.maxFileSize, config.hdfsBlockSize, config.outputFileContentDelim, config.inputDirRecursiveRead.toString)
         rdd.saveAsTextFile(config.out)
-      case None => println("bad arguments")
+      case None => println("ERROR: bad argument set provided")
     }
-
 
 
 //    rdd
@@ -72,19 +83,26 @@ object AggDriver {
 
   }
 
-  case class Config(in: String = "", out: String = "")
+  case class Config(in: String = "",
+                    out: String = "",
+                    master: String = "",
+                    name: String = "File Aggregator",
+                    maxFileSize: Long = 128,
+                    hdfsBlockSize: Long = -1,
+                    outputFileContentDelim: String = "\n",
+                    inputDirRecursiveRead: Boolean = true)
 
   implicit class Aggregator(val origin: SparkContext) {
 
-    def combineTextFiles(inDirPath: String, size: Long = defaultSize, delim: String = defaultDelim): RDD[String] = {
+    def combineTextFiles(inDirPath: String, fSize: Long, bSize: Long, delim: String, recursiveRead: String): RDD[String] = {
 
       val hadoopConf = origin.hadoopConfiguration
       hadoopConf.set("textinputformat.record.delimiter", delim)
-      hadoopConf.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")
+      hadoopConf.set("mapreduce.input.fileinputformat.input.dir.recursive", recursiveRead)
       hadoopConf.set("mapred.input.dir", inDirPath)
-      hadoopConf.setLong("mapred.max.split.size", size * 1024 * 1024)
+      hadoopConf.setLong("mapred.max.split.size", fSize * Mb)
       hadoopConf.setBoolean("fs.hdfs.impl.disable.cache", true)
-      hadoopConf.setLong("dfs.blocksize", 128 * 1024 * 1024) //check by - example: hadoop fs -stat %o /user/examples1/files-out/part-00002
+      if (bSize > 0) hadoopConf.setLong("dfs.blocksize", bSize * Mb) //check by - example: hadoop fs -stat %o /user/examples1/files-out/part-00002
       val jobConf = new JobConf(hadoopConf)
       //jobConf.setOutputFormat(classOf[KeyBasedMultipleTextOutputFormat])
       //dumpConfig(jobConf, "hdfs://localhost/user/examples1/props/props.txt")
