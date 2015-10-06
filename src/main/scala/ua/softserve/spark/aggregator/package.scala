@@ -14,6 +14,7 @@ import scala.reflect.ClassTag
 
 /**
  * Created by dbort on 30.09.2015.
+ * Utility object to hold constants and auxiliary functions.
  */
 package object aggregator {
 
@@ -41,7 +42,6 @@ package object aggregator {
   val MsgNote = "NOTE: arguments with spaces should be enclosed in \" \"."
 
   val Mb = 1024 * 1024
-
 
   def debugCountdown(seconds: Int) = {
     //turn on debug - $ export SPARK_JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005

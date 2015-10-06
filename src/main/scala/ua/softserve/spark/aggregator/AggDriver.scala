@@ -29,23 +29,13 @@ import org.apache.spark.rdd._
 
 /**
  * Created by dbort on 01.10.2015.
+ * File aggregation application. Combines large number of small text files into several big files in order to overcome Hadoop small files problem.
  */
 object AggDriver {
 
   def main(args: Array[String]) {
 
-//    val source = if (args.size > 0) Source.fromURL(args(0)) else Source.fromURL(getClass.getResource(FileNameConfDefault))
-//    val properties = new Properties()
-//    properties.load(source.bufferedReader())
-//
-//
-      //debugCountdown(6)
-//
-//    val sparkContext = new SparkContext("spark://quickstart.cloudera:7077", "File_Aggregator")
-//    val rdd = sparkContext.combineTextFiles(properties.getProperty(PropInputDir))
-//    rdd.saveAsTextFile(properties.getProperty(PropOutputDir))
-
-    val parser = new scopt.OptionParser[Config](MsgUsage) {
+    val parser = new scopt.OptionParser[Config](MsgUsage) { //CLI setup
       head("File Aggregator", "1.0")
       opt[String]('i', "in") required() valueName("<inURI>") action { (x, c) =>
         c.copy(in = x) } text(MsgIn)
@@ -67,7 +57,7 @@ object AggDriver {
       note(MsgNote)
     }
 
-    parser.parse(args, Config()) match {
+    parser.parse(args, Config()) match { //CLI launch
       case Some(config) =>
         val sparkContext = new SparkContext(config.master, config.name)
         val rdd = sparkContext.combineTextFiles(config.in,
@@ -76,13 +66,19 @@ object AggDriver {
       case None => println("ERROR: bad argument set provided")
     }
 
-
-//    rdd
-//      .map{v => (new Text(args(0) + "-out"), new Text(v.toString))}
-//      .saveAsHadoopDataset(new JobConf(sparkContext.hadoopConfiguration))
-
   }
 
+  /**
+   * Holder class for local CLI configuration.
+   * @param in
+   * @param out
+   * @param master
+   * @param name
+   * @param maxFileSize
+   * @param hdfsBlockSize
+   * @param outputFileContentDelim
+   * @param inputDirRecursiveRead
+   */
   case class Config(in: String = "",
                     out: String = "",
                     master: String = "",
@@ -92,6 +88,10 @@ object AggDriver {
                     outputFileContentDelim: String = "\n",
                     inputDirRecursiveRead: Boolean = true)
 
+  /**
+   * Provides additional method for SparkContext in order to commence file aggregation.
+   * @param origin
+   */
   implicit class Aggregator(val origin: SparkContext) {
 
     def combineTextFiles(inDirPath: String, fSize: Long, bSize: Long, delim: String, recursiveRead: String): RDD[String] = {
@@ -104,14 +104,14 @@ object AggDriver {
       hadoopConf.setBoolean("fs.hdfs.impl.disable.cache", true)
       if (bSize > 0) hadoopConf.setLong("dfs.blocksize", bSize * Mb) //check by - example: hadoop fs -stat %o /user/examples1/files-out/part-00002
       val jobConf = new JobConf(hadoopConf)
-      //jobConf.setOutputFormat(classOf[KeyBasedMultipleTextOutputFormat])
-      //dumpConfig(jobConf, "hdfs://localhost/user/examples1/props/props.txt")
       origin.newAPIHadoopRDD(jobConf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
-      //origin.newAPIHadoopFile(inDirPath, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text], hadoopConf).map(_._2.toString)
 
     }
   }
 
+  /**
+   * Class defines Input Format for RDD.
+   */
   private class CombineTextFileWithOffsetInputFormat extends CombineFileInputFormat[LongWritable, Text] {
     override def createRecordReader(split: InputSplit, context: TaskAttemptContext): RecordReader[LongWritable, Text] =
       new CombineFileRecordReader(split.asInstanceOf[CombineFileSplit], context, classOf[CombineTextFileWithOffsetRecordReader])
@@ -123,15 +123,13 @@ object AggDriver {
     override def generateKey(split: CombineFileSplit, index: Integer) = split.getOffset(index)
   }
 
-//  class KeyBasedMultipleTextOutputFormat extends MultipleTextOutputFormat[Text, Text] {
-//    override def generateFileNameForKeyValue(key: Text, value: Text, name: String): String = {
-//      key.toString + "/" + name
-//    }
-//
-//    override def generateActualKey(key: Text, value: Text) = null
-//  }
-
-
+  /**
+   * Class implements file aggregation logic.
+   * @param split
+   * @param context
+   * @param index
+   * @tparam K
+   */
   private abstract class CombineTextFileRecordReader[K](split: CombineFileSplit, context: TaskAttemptContext, index: Integer)
     extends RecordReader[K, Text] {
 
