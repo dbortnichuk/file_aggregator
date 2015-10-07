@@ -31,7 +31,7 @@ Application can be configured from command line providing parameters
 ```
 -o hdfs://localhost/user/examples/files-out
 ```
-* -m - is a optional property, specify it to point out spark master URI, by default will be governed by --master option of spark-submit command which would be required in case not providing in to File Aggregator application, example: 
+* -m - is a optional property, specify it to point out spark master URI, by default will be governed by --master option of spark-submit command which would be required in case not providing it to File Aggregator application, example: 
 ```
 -m spark://quickstart.cloudera:7077
 ```
@@ -56,10 +56,10 @@ Application can be configured from command line providing parameters
 ```
 -r false
 ```
-* *--help* - can be used to view usage options from command line
+* *--help* - can be used to view usage options from command line.
 
 ### Run
-Run application by submitting it to Spark via command line, providing mandatory parameters. Example:
+Run application by submitting it to Spark via command line, providing mandatory parameters, example:
 
 ``` 
 spark-submit --class "ua.softserve.spark.aggregator.AggDriver" --master local jars/file_aggregator-1.0.jar -i /inDir -o /outDir -n "File Agg" -f 64 -b 64 -r false
