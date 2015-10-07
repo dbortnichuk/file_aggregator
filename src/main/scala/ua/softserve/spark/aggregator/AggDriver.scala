@@ -41,7 +41,7 @@ object AggDriver {
         c.copy(in = x) } text(MsgIn)
       opt[String]('o', "out") required() valueName("<outURI>") action { (x, c) =>
         c.copy(out = x) } text(MsgOut)
-      opt[String]('m', "master") required() valueName("<masterURI>") action { (x, c) =>
+      opt[String]('m', "master") valueName("<masterURI>") action { (x, c) =>
         c.copy(master = x) } text(MsgMaster)
       opt[String]('n', "name") valueName("<appName>") action { (x, c) =>
         c.copy(name = x) } text(MsgName)
@@ -59,7 +59,10 @@ object AggDriver {
 
     parser.parse(args, Config()) match { //CLI launch
       case Some(config) =>
-        val sparkContext = new SparkContext(config.master, config.name)
+        val sparkConf = new SparkConf()
+        if(!config.name.isEmpty)sparkConf.setAppName(config.name)
+        if(!config.master.isEmpty)sparkConf.setMaster(config.master)
+        val sparkContext = new SparkContext(sparkConf)
         val rdd = sparkContext.combineTextFiles(config.in,
           config.maxFileSize, config.hdfsBlockSize, config.outputFileContentDelim, config.inputDirRecursiveRead.toString)
         rdd.saveAsTextFile(config.out)
@@ -89,7 +92,7 @@ object AggDriver {
                     inputDirRecursiveRead: Boolean = true)
 
   /**
-   * Provides additional method for SparkContext in order to commence file aggregation.
+   * Provides additional method via implicit conversion for SparkContext in order to commence file aggregation.
    * @param origin
    */
   implicit class Aggregator(val origin: SparkContext) {

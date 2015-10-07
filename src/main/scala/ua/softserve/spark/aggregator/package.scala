@@ -32,7 +32,7 @@ package object aggregator {
   val MsgUsage = "spark-submit --class \"ua.softserve.spark.aggregator.AggDriver\" *.jar"
   val MsgIn = "\"in\" is a required property, specify it to point out directory URI small files to be read and aggregated into combined files, example: hdfs://localhost/user/examples/files"
   val MsgOut = "\"out\" is a required property, specify it to point out directory URI to upload combined files to, example: hdfs://localhost/user/examples/files-out"
-  val MsgMaster = "\"master\" is a required property, specify it to point out spark master URI, example: spark://quickstart.cloudera:7077"
+  val MsgMaster = "\"master\" is a optional property, specify it to point out spark master URI, example: spark://quickstart.cloudera:7077  default: governed by --master option of spark-submit command which would be required in case not providing in to File Aggregator application"
   val MsgName = "\"name\" is an optional property, Application display name, default: File_Aggregator"
   val MsgMaxFileSize = "\"fsize\" is an optional property, Max size of single output file in Mb, default: 128"
   val MsgHdfsBlockSize = "\"bsize\" is an optional property, HDFS file block size in Mb, default: governed by dfs.blocksize Hadoop option"
