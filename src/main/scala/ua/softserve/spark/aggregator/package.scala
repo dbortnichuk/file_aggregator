@@ -18,17 +18,6 @@ import scala.reflect.ClassTag
  */
 package object aggregator {
 
-  val FileNameConfDefault = "/conf.properties"
-
-  val PropAppName = "appName"
-  val PropMasterURI = "masterURI"
-  val PropInputDir = "inputDir"
-  val PropOutputDir = "outputDir"
-  val PropMaxFileSize = "maxFileSize"
-  val PropHdfsBlockSize = "hdfsBlockSize"
-  val PropOutputFileContentDelim = "outputFileContentDelim"
-  val PropInputDirRecursiveRead = "inputDirRecursiveRead"
-
   val MsgUsage = "spark-submit --class \"ua.softserve.spark.aggregator.AggDriver\" *.jar"
   val MsgIn = "\"in\" is a required property, specify it to point out directory URI small files to be read and aggregated into combined files, example: hdfs://localhost/user/examples/files"
   val MsgOut = "\"out\" is a required property, specify it to point out directory URI to upload combined files to, example: hdfs://localhost/user/examples/files-out"
