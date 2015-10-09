@@ -21,6 +21,7 @@
         <scala.version>2.10.5</scala.version>
         <scala.test.version>2.0</scala.test.version>
         <scala.tools.version>2.15.2</scala.tools.version>
+        <scala.test.plugin.version>1.0</scala.test.plugin.version>
         <scala.compat.version>2.10</scala.compat.version>
         <spark.version>1.5.0</spark.version>
         <spark.compat.version>1.5</spark.compat.version>
@@ -38,6 +39,7 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>
+                            <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -56,6 +58,24 @@
                 <configuration>
                     <finalName>${artifactId}-${version}</finalName>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>${scala.test.plugin.version}</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <junitxml>.</junitxml>
+                    <filereports>WDF TestSuite.txt</filereports>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -82,6 +102,12 @@
             <artifactId>hadoop-client</artifactId>
             <version>${hadoop.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
