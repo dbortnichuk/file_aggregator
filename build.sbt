@@ -1,4 +1,4 @@
-organization := "ua.softserve.spark"
+organization := "com.cisco.mantl"
 
 developers := List(Developer("", "Dmytro Bortnichuk", "", null))
 
