@@ -1,4 +1,4 @@
-package ua.softserve.spark.aggregator
+package com.cisco.mantl.aggregator
 
 import java.net.URI
 

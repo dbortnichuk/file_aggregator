@@ -1,29 +1,13 @@
-package ua.softserve.spark.aggregator
+package com.cisco.mantl.aggregator
 
-import java.io.{File, FileOutputStream, OutputStream}
-import java.net.{URL, URI}
-import java.util.Properties
-
-import org.apache.hadoop.mapred.JobConf
-import org.apache.hadoop.mapred.lib.MultipleTextOutputFormat
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
-import org.apache.spark.SparkConf
-import org.apache.spark.rdd._
-
-import org.apache.hadoop.mapreduce.RecordReader
-import org.apache.hadoop.mapreduce.TaskAttemptContext
-import org.apache.hadoop.mapreduce.InputSplit
-import org.apache.hadoop.io.compress.CompressionCodecFactory
-import org.apache.hadoop.util.LineReader
 import org.apache.hadoop.io._
-import org.apache.hadoop.fs._
+import org.apache.hadoop.io.compress.CompressionCodecFactory
+import org.apache.hadoop.mapred.JobConf
+import org.apache.hadoop.mapreduce.{InputSplit, RecordReader, TaskAttemptContext}
 import org.apache.hadoop.mapreduce.lib.input._
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.conf.Configured
-import scala.io.Source
-import scala.reflect.ClassTag
-import scala.reflect._
+import org.apache.hadoop.util.LineReader
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.SparkContext._
 import org.apache.spark.rdd._
 
 

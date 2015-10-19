@@ -1,16 +1,15 @@
-package ua.softserve.spark.aggregator
+package com.cisco.mantl.aggregator
 
+import com.cisco.mantl.aggregator.AggDriver._
 import org.apache.spark.SparkContext
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
-
-import AggDriver._
 
 /**
  * Created by dbort on 08.10.2015.
  */
 class AggSuite extends FunSuite with BeforeAndAfterAll {
 
-  lazy val sc: SparkContext = new SparkContext("local", getClass.getSimpleName)
+  lazy val sc = new SparkContext("local", getClass.getSimpleName)
 
   def path(file: String) = getClass.getResource("/" + file).getFile
 
