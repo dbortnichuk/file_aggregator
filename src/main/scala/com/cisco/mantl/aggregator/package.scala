@@ -1,4 +1,4 @@
-package ua.softserve.spark
+package com.cisco.mantl
 
 import java.net.URI
 

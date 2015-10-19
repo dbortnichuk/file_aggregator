@@ -2,14 +2,14 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>ua.softserve.spark</groupId>
+    <groupId>com.cisco.mantl</groupId>
     <artifactId>file_aggregator</artifactId>
     <packaging>jar</packaging>
     <description>file_aggregator</description>
     <version>1.0</version>
     <name>file_aggregator</name>
     <organization>
-        <name>ua.softserve.spark</name>
+        <name>com.cisco.mantl</name>
     </organization>
     <developers>
         <developer>

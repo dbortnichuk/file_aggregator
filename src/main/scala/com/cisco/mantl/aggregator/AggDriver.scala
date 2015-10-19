@@ -1,18 +1,13 @@
-package ua.softserve.spark.aggregator
+package com.cisco.mantl.aggregator
 
-import org.apache.hadoop.mapred.JobConf
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
-import org.apache.spark.SparkConf
-
-import org.apache.hadoop.mapreduce.RecordReader
-import org.apache.hadoop.mapreduce.TaskAttemptContext
-import org.apache.hadoop.mapreduce.InputSplit
-import org.apache.hadoop.io.compress.CompressionCodecFactory
-import org.apache.hadoop.util.LineReader
 import org.apache.hadoop.io._
-
+import org.apache.hadoop.io.compress.CompressionCodecFactory
+import org.apache.hadoop.mapred.JobConf
+import org.apache.hadoop.mapreduce.{InputSplit, RecordReader, TaskAttemptContext}
 import org.apache.hadoop.mapreduce.lib.input._
+import org.apache.hadoop.util.LineReader
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.SparkContext._
 import org.apache.spark.rdd._
 
 
