@@ -28,7 +28,7 @@ package object aggregator {
   val PropOutputFileContentDelim = "outputFileContentDelim"
   val PropInputDirRecursiveRead = "inputDirRecursiveRead"
 
-  val MsgUsage = "spark-submit --class \"ua.softserve.spark.aggregator.AggDriver\" *.jar"
+  val MsgUsage = "spark-submit --class \"com.cisco.mantl.aggregator.AggDriver\" *.jar"
   val MsgIn = "\"in\" is a required property, specify it to point out directory URI small files to be read and aggregated into combined files, example: hdfs://localhost/user/examples/files"
   val MsgOut = "\"out\" is a required property, specify it to point out directory URI to upload combined files to, example: hdfs://localhost/user/examples/files-out"
   val MsgMaster = "\"master\" is a optional property, specify it to point out spark master URI, example: spark://quickstart.cloudera:7077  default: governed by --master option of spark-submit command which would be required in case not providing in to File Aggregator application"
